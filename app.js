@@ -43,32 +43,34 @@ camera.addEventListener("click", (e) => {
 });
 
 // for access the media device
-const gotMedia = async (cameraId, mickId) => {
-  console.log(cameraId);
-  const initialConstrains = {
-    video: true,
-    audio: true,
-  };
+let cameraId;
+let mickId;
+const gotMedia = async (cam, mic) => {
+  if (cam) {
+    cameraId = cam;
+  }
+  if (mic) {
+    mickId = mic;
+  }
+  console.log(`cameraId: ${cameraId}, mickId: ${mickId}`);
 
   const preferredConstrains = {
-    audio: {
-      deviceId: mickId,
-    },
-    video: {
-      deviceId: cameraId,
-    },
+    audio: mickId ? { deviceId: mickId } : true,
+    video: cameraId ? { deviceId: cameraId } : true,
   };
+
 
   try {
     mediaStream = await window.navigator.mediaDevices.getUserMedia(
-      cameraId ? preferredConstrains : initialConstrains
+      preferredConstrains
     );
     displayMedia();
+    getAllCamera();
+    getAllMick();
   } catch (error) {
     console.log(error);
   }
 };
-
 gotMedia();
 
 const displayMedia = async () => {
@@ -78,26 +80,41 @@ const displayMedia = async () => {
   });
 };
 
-// here we can find all of the media device who are connected on computer
-const getDevise = async () => {
+// here we can find all of the camera device who are connected on computer
+const getAllCamera = async () => {
+  const currentCamera = await mediaStream.getVideoTracks()[0];
   const allDevice = await window.navigator.mediaDevices.enumerateDevices();
+
+  selectCamera.innerHTML = "";
 
   allDevice.forEach((device) => {
     if (device.kind === "videoinput") {
       const option = document.createElement("option");
       option.textContent = device.label;
       option.value = device.deviceId;
+      option.selected = device.label === currentCamera.label;
       selectCamera.appendChild(option);
     }
+  });
+};
+
+// here we can find all of the mick device who are connected on computer
+const getAllMick = async () => {
+  const currentMick = await mediaStream.getAudioTracks()[0];
+  const allDevice = await window.navigator.mediaDevices.enumerateDevices();
+
+  selectMick.innerHTML = "";
+
+  allDevice.forEach((device) => {
     if (device.kind === "audioinput") {
       const option = document.createElement("option");
       option.textContent = device.label;
       option.value = device.deviceId;
+      option.selected = device.label === currentMick.label;
       selectMick.appendChild(option);
     }
   });
 };
-getDevise();
 
 // select a specific camera
 selectCamera.addEventListener("input", (e) => {
@@ -108,5 +125,5 @@ selectCamera.addEventListener("input", (e) => {
 // select a specific mick
 selectMick.addEventListener("input", (e) => {
   const deviceId = e.target.value;
-  gotMedia(deviceId)
+  gotMedia(false, deviceId);
 });
