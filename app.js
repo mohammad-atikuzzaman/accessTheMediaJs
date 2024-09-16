@@ -1,6 +1,8 @@
 const video = document.getElementById("video");
 const mice = document.getElementById("mick");
 const camera = document.getElementById("camera");
+const selectMick = document.getElementById("selectMick");
+const selectCamera = document.getElementById("selectCam");
 
 let mediaStream;
 
@@ -38,19 +40,29 @@ camera.addEventListener("click", (e) => {
       track.enabled = true;
     });
   }
-
-  console.log(cam);
 });
 
 // for access the media device
-const gotMedia = async () => {
-  try {
-    mediaStream = await window.navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
+const gotMedia = async (cameraId, mickId) => {
+  console.log(cameraId);
+  const initialConstrains = {
+    video: true,
+    audio: true,
+  };
 
-    // console.log(mediaStream);
+  const preferredConstrains = {
+    audio: {
+      deviceId: mickId,
+    },
+    video: {
+      deviceId: cameraId,
+    },
+  };
+
+  try {
+    mediaStream = await window.navigator.mediaDevices.getUserMedia(
+      cameraId ? preferredConstrains : initialConstrains
+    );
     displayMedia();
   } catch (error) {
     console.log(error);
@@ -65,3 +77,36 @@ const displayMedia = async () => {
     video.play();
   });
 };
+
+// here we can find all of the media device who are connected on computer
+const getDevise = async () => {
+  const allDevice = await window.navigator.mediaDevices.enumerateDevices();
+
+  allDevice.forEach((device) => {
+    if (device.kind === "videoinput") {
+      const option = document.createElement("option");
+      option.textContent = device.label;
+      option.value = device.deviceId;
+      selectCamera.appendChild(option);
+    }
+    if (device.kind === "audioinput") {
+      const option = document.createElement("option");
+      option.textContent = device.label;
+      option.value = device.deviceId;
+      selectMick.appendChild(option);
+    }
+  });
+};
+getDevise();
+
+// select a specific camera
+selectCamera.addEventListener("input", (e) => {
+  const deviceId = e.target.value;
+  gotMedia(deviceId);
+});
+
+// select a specific mick
+selectMick.addEventListener("input", (e) => {
+  const deviceId = e.target.value;
+  gotMedia(deviceId)
+});

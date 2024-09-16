@@ -23,3 +23,10 @@
   border-radius: 5px;
   color: aliceblue;
 }
+
+#selectMick, #selectCam{
+  padding: 5px;
+  background-color: aqua;
+  border: 2px solid gray;
+  border-radius: 5px;
+}
