@@ -30,3 +30,12 @@
   border: 2px solid gray;
   border-radius: 5px;
 }
+
+#shareScreen{
+  border: none;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: aqua;
+  border-radius: 5px;
+  font-weight: 600;
+}

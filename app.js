@@ -3,6 +3,7 @@ const mice = document.getElementById("mick");
 const camera = document.getElementById("camera");
 const selectMick = document.getElementById("selectMick");
 const selectCamera = document.getElementById("selectCam");
+const shareScreenBtn = document.getElementById("shareScreen");
 
 let mediaStream;
 
@@ -12,12 +13,14 @@ mice.addEventListener("click", (e) => {
   if (mute) {
     mute = false;
     mice.textContent = "Mute";
+    mice.style.backgroundColor = "tomato"
     mediaStream.getAudioTracks().forEach((track) => {
       track.enabled = true;
     });
   } else {
     mute = true;
     mice.textContent = "Unmute";
+    mice.style.backgroundColor = "green"
     mediaStream.getAudioTracks().forEach((track) => {
       track.enabled = false;
     });
@@ -29,12 +32,14 @@ let cam = true;
 camera.addEventListener("click", (e) => {
   if (cam) {
     camera.textContent = "Turn On Camera";
+    camera.style.backgroundColor = "green"
     cam = false;
     mediaStream.getVideoTracks().forEach((track) => {
       track.enabled = false;
     });
   } else {
     camera.textContent = "Turn Off Camera";
+    camera.style.backgroundColor = "tomato"
     cam = true;
     mediaStream.getVideoTracks().forEach((track) => {
       track.enabled = true;
@@ -52,13 +57,13 @@ const gotMedia = async (cam, mic) => {
   if (mic) {
     mickId = mic;
   }
-  console.log(`cameraId: ${cameraId}, mickId: ${mickId}`);
 
   const preferredConstrains = {
     audio: mickId ? { deviceId: mickId } : true,
     video: cameraId ? { deviceId: cameraId } : true,
   };
 
+  // console.log(preferredConstrains)
 
   try {
     mediaStream = await window.navigator.mediaDevices.getUserMedia(
@@ -79,6 +84,20 @@ const displayMedia = async () => {
     video.play();
   });
 };
+
+const getScreenMedia=async()=>{
+  try {
+    mediaStream = await window.navigator.mediaDevices.getDisplayMedia({
+      audio: true,
+      video: true
+    })
+  } catch (error) {
+    console.log(error)
+  }
+  displayMedia()
+}
+
+shareScreenBtn.addEventListener("click", getScreenMedia)
 
 // here we can find all of the camera device who are connected on computer
 const getAllCamera = async () => {
